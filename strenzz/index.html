@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Strenzz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app">
+
+  <nav class="sidebar">
+    <div class="logo">STR<span>ENZ</span>Z</div>
+    <ul class="nav-links">
+      <li class="nav-item active" data-tab="dashboard"><span class="nav-icon">⚡</span><span>Dashboard</span></li>
+      <li class="nav-item" data-tab="lifts"><span class="nav-icon">🏋️</span><span>My Lifts</span></li>
+      <li class="nav-item" data-tab="progress"><span class="nav-icon">📈</span><span>Progress</span></li>
+      <li class="nav-item" data-tab="rank"><span class="nav-icon">🏆</span><span>My Rank</span></li>
+      <li class="nav-item" data-tab="tools"><span class="nav-icon">🧮</span><span>Tools</span></li>
+    </ul>
+    <div class="sidebar-footer">Strenzz v1.0</div>
+  </nav>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <section class="tab active" id="tab-dashboard">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <p class="subtitle">Your strength at a glance</p>
+      </div>
+      <div class="stats-row" id="dash-stats"></div>
+      <div class="card mt">
+        <div class="card-title">Quick Log</div>
+        <div class="quick-log-form">
+          <select id="ql-exercise"></select>
+          <input type="number" id="ql-weight" placeholder="Weight (kg)" min="0" step="0.5"/>
+          <input type="number" id="ql-reps" placeholder="Reps" min="1"/>
+          <input type="number" id="ql-sets" placeholder="Sets" min="1" value="3"/>
+          <button class="btn" onclick="quickLog()">+ LOG</button>
+        </div>
+      </div>
+      <div class="card mt">
+        <div class="card-title">Recent Sessions</div>
+        <div id="recent-sessions"><p class="empty-msg">No sessions yet. Log your first lift above!</p></div>
+      </div>
+    </section>
+
+    <!-- MY LIFTS -->
+    <section class="tab" id="tab-lifts">
+      <div class="page-header">
+        <h1>My Lifts</h1>
+        <p class="subtitle">Manage your exercises</p>
+      </div>
+      <div class="card">
+        <div class="card-title">Add Exercise</div>
+        <div class="add-exercise-form">
+          <input type="text" id="ex-name" placeholder="Exercise name (e.g. Bench Press)"/>
+          <select id="ex-category">
+            <option value="Push">Push</option>
+            <option value="Pull">Pull</option>
+            <option value="Legs">Legs</option>
+            <option value="Core">Core</option>
+            <option value="Other">Other</option>
+          </select>
+          <button class="btn" onclick="addExercise()">ADD</button>
+        </div>
+      </div>
+      <div class="card mt" id="exercises-list"></div>
+    </section>
+
+    <!-- PROGRESS -->
+    <section class="tab" id="tab-progress">
+      <div class="page-header">
+        <h1>Progress</h1>
+        <p class="subtitle">Watch yourself grow</p>
+      </div>
+      <div class="card">
+        <div class="filter-row">
+          <select id="progress-exercise"></select>
+          <select id="progress-period">
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="all">All Time</option>
+          </select>
+          <button class="btn" onclick="renderProgressChart()">VIEW</button>
+        </div>
+        <div class="chart-wrap"><canvas id="progressChart"></canvas></div>
+      </div>
+      <div class="card mt">
+        <div class="card-title">Personal Records 🎯</div>
+        <div id="pr-list"><p class="empty-msg">Log some lifts to see your PRs!</p></div>
+      </div>
+    </section>
+
+    <!-- RANK -->
+    <section class="tab" id="tab-rank">
+      <div class="page-header">
+        <h1>My Rank</h1>
+        <p class="subtitle">How rare is your strength?</p>
+      </div>
+      <div class="card">
+        <p class="hint-text">Enter your bodyweight to compare your lifts against general population strength standards. Results show what percentile you're in.</p>
+        <div class="rank-input-row">
+          <input type="number" id="rank-bw" placeholder="Your bodyweight (kg)" />
+          <button class="btn" onclick="renderRanks()">CHECK RANK</button>
+        </div>
+        <div id="rank-list"><p class="empty-msg">Enter bodyweight and click Check Rank.</p></div>
+      </div>
+    </section>
+
+    <!-- TOOLS -->
+    <section class="tab" id="tab-tools">
+      <div class="page-header">
+        <h1>Tools</h1>
+        <p class="subtitle">BMI · Body Fat · 1RM</p>
+      </div>
+      <div class="tools-grid">
+
+        <div class="card tool-card">
+          <div class="card-title">BMI Calculator</div>
+          <input type="number" id="bmi-weight" placeholder="Weight (kg)"/>
+          <input type="number" id="bmi-height" placeholder="Height (cm)"/>
+          <button class="btn full" onclick="calcBMI()">CALCULATE</button>
+          <div id="bmi-result" class="result-box hidden"></div>
+        </div>
+
+        <div class="card tool-card">
+          <div class="card-title">Body Fat % (Navy)</div>
+          <select id="bf-gender" onchange="toggleHip()">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+          <input type="number" id="bf-height" placeholder="Height (cm)"/>
+          <input type="number" id="bf-waist" placeholder="Waist (cm) — at navel"/>
+          <input type="number" id="bf-neck" placeholder="Neck (cm)"/>
+          <input type="number" id="bf-hip" placeholder="Hip (cm) — females only" class="hidden" id="bf-hip"/>
+          <button class="btn full" onclick="calcBodyFat()">CALCULATE</button>
+          <div id="bf-result" class="result-box hidden"></div>
+        </div>
+
+        <div class="card tool-card">
+          <div class="card-title">1 Rep Max (Brzycki)</div>
+          <input type="number" id="orm-weight" placeholder="Weight lifted (kg)"/>
+          <input type="number" id="orm-reps" placeholder="Reps performed"/>
+          <button class="btn full" onclick="calc1RM()">CALCULATE</button>
+          <div id="orm-result" class="result-box hidden"></div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
